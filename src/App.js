@@ -1,0 +1,105 @@
+// Fetching Data
+// Data usually get from APIs
+// useEffect and useCallback Hooks
+// useEffect is perfect for handling data searching operations and manually
+//     changing the dom when certain components are a result of these operations
+
+// Deleting records
+// AppointmentInfo.js => onDeleteAppointment => here in AppointmentInfo component
+
+// Searching with a filtered array
+// > Search.js => input query onChange => (here) query let => Search component
+// => const filteredAppointments
+
+// Sort
+// (here) sort let & obrderBy let => sort in filteredAppoitments const
+// => (here) Search component
+// > Search.js => arguments => DropDown component
+
+// Adding a new appointment
+// > AddAppointment.js => Data let => onChange for ownerName, petName and ... inputs
+// => onClick for submit button => function formDataPublish => appointment const
+// > (here) app.js => AddAppointment component => reduce function (reducer to find the max id)
+// spread operator
+
+import { useState, useEffect, useCallback } from 'react'
+import { BiCalendar } from "react-icons/bi"
+import Search from "./components/Search"
+import AddAppointment from "./components/AddAppointment"
+import AppointmentInfo from "./components/AppointmentInfo"
+
+function App() {
+
+  let [appointmentList, setAppointmentList] = useState([]);
+  let [query, setQuery] = useState("");
+  let [sortBy, setSortBy] = useState("petName");
+  let [orderBy, setOrderBy] = useState("asc");
+
+  const filteredAppointments = appointmentList.filter(
+    item => {
+      return (
+        item.petName.toLowerCase().includes(query.toLowerCase()) ||
+        item.ownerName.toLowerCase().includes(query.toLowerCase()) ||
+        item.aptNotes.toLowerCase().includes(query.toLowerCase())
+      )
+    }
+  ).sort((a, b) => {
+    let order = (orderBy === 'asc') ? 1 : -1;
+    return (
+      a[sortBy].toLowerCase() < b[sortBy].toLowerCase()
+        ? -1 * order : 1 * order
+    )
+  })
+
+  // retrieving our data
+  // and asking useCallback to monitor any changes that happen to that data
+  const fetchData = useCallback(() => {
+    // same folder (anything in the public foler is as the same level as the app.js)
+    fetch('./data.json')
+      .then(response => response.json())
+      .then(data => {
+        setAppointmentList(data)
+      });
+  }, [])
+  // to make sure that it is tracking the data and any changes to the data as it comes in
+  // a side effect that your application doesn't normally worry about
+  useEffect(() => {
+    fetchData()
+  }, [fetchData]);
+
+  return (
+    <div className="App container mx-auto mt-3 font-thin">
+      <h1 className="text-5xl mb-3">
+        <BiCalendar className="inline-block text-red-400 align-top" />Your Appointments</h1>
+      <AddAppointment
+        onSendAppointment={myAppointment => setAppointmentList([...appointmentList, myAppointment])}
+        lastId={appointmentList.reduce((max, item) => Number(item.id) > max ? Number(item.id) : max, 0)}
+      />
+      <Search query={query}
+        onQueryChange={myQuery => setQuery(myQuery)}
+        orderBy={orderBy}
+        onOrderByChange={mySort => setOrderBy(mySort)}
+        sortBy={sortBy}
+        onSortByChange={mySort => setSortBy(mySort)}
+      />
+
+      <ul className="divide-y divide-gray-200">
+        {filteredAppointments
+          .map(appointment => (
+            // Delete
+            <AppointmentInfo key={appointment.id}
+              appointment={appointment}
+              onDeleteAppointment={
+                appointmentId =>
+                  setAppointmentList(appointmentList.filter(appointment =>
+                    appointment.id !== appointmentId))
+              }
+            />
+          ))
+        }
+      </ul>
+    </div>
+  );
+}
+
+export default App;
