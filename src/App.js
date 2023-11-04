@@ -1,27 +1,3 @@
-// Fetching Data
-// Data usually get from APIs
-// useEffect and useCallback Hooks
-// useEffect is perfect for handling data searching operations and manually
-//     changing the dom when certain components are a result of these operations
-
-// Deleting records
-// AppointmentInfo.js => onDeleteAppointment => here in AppointmentInfo component
-
-// Searching with a filtered array
-// > Search.js => input query onChange => (here) query let => Search component
-// => const filteredAppointments
-
-// Sort
-// (here) sort let & obrderBy let => sort in filteredAppoitments const
-// => (here) Search component
-// > Search.js => arguments => DropDown component
-
-// Adding a new appointment
-// > AddAppointment.js => Data let => onChange for ownerName, petName and ... inputs
-// => onClick for submit button => function formDataPublish => appointment const
-// > (here) app.js => AddAppointment component => reduce function (reducer to find the max id)
-// spread operator
-
 import { useState, useEffect, useCallback } from 'react'
 import { BiCalendar } from "react-icons/bi"
 import Search from "./components/Search"
